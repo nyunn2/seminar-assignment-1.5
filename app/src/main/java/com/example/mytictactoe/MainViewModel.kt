@@ -11,6 +11,11 @@ class MainViewModel : ViewModel() {
     private val _resetButton = MutableLiveData<String>("초기화")
     private val _board = MutableLiveData<Array<Char>>(Array(9) {' '})
     private val _playing = MutableLiveData<Boolean>(true)
+
+    private val _gameResultsList = MutableLiveData<List<Array<Char>>>()
+    val gameResultsList: LiveData<List<Array<Char>>> get() = _gameResultsList
+    private val gameResults = mutableListOf<Array<Char>>()
+
     private var num = 0
 
     val currentPlayer: LiveData<Char> get() = _currentPlayer
@@ -46,6 +51,11 @@ class MainViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    fun addNewGameResult(board: Array<Char>) {
+        gameResults.add(board)
+        _gameResultsList.value = gameResults.toList()
     }
 
     fun checkVictory(board: Array<Char>): Boolean {

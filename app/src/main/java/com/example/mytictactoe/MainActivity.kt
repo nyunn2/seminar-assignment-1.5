@@ -1,22 +1,27 @@
 package com.example.mytictactoe
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mytictactoe.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
+    private lateinit var adapter: GameResultAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // RecyclerView 초기화
+        adapter = GameResultAdapter()
+        binding.recyclerView.layoutManager = LinearLayoutManager(this) // 세로로 나열
+        binding.recyclerView.adapter = adapter
+
+        // ViewModel의 LiveData 관찰
         viewModel.currentPlayer.observe(this) {
             binding.announcement.text = viewModel.announcement.value
             binding.resetButton.text = if (viewModel.playing.value == true) "초기화" else "한판 더"
@@ -30,6 +35,9 @@ class MainActivity : AppCompatActivity() {
             if (!isPlaying) {
                 binding.announcement.text = viewModel.announcement.value
                 binding.resetButton.text = viewModel.resetButton.value
+
+                // 게임이 끝났을 때 결과를 추가
+                viewModel.addNewGameResult(viewModel.board.value!!) // 현재 보드 추가
             }
         }
 
@@ -39,6 +47,11 @@ class MainActivity : AppCompatActivity() {
 
         // 각 보드 칸에 클릭 리스너 설정
         setBoardClickListeners()
+
+        // RecyclerView의 gameResultsList 관찰
+        viewModel.gameResultsList.observe(this) { results ->
+            adapter.submitList(results.toList()) // 게임 결과를 어댑터에 제출
+        }
     }
 
     private fun updateBoardUI(board: Array<Char>) {
