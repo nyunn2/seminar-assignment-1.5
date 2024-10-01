@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
                 binding.resetButton.text = viewModel.resetButton.value
 
                 // 게임이 끝났을 때 결과를 추가
-                viewModel.addNewGameResult(viewModel.board.value!!) // 현재 보드 추가
+                viewModel.addNewGameResult(viewModel.board.value!!,viewModel.winnerdata.value!!) // 현재 보드 추가
             }
         }
 

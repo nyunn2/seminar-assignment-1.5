@@ -12,9 +12,9 @@ class MainViewModel : ViewModel() {
     private val _board = MutableLiveData<Array<Char>>(Array(9) {' '})
     private val _playing = MutableLiveData<Boolean>(true)
 
-    private val _gameResultsList = MutableLiveData<List<Array<Char>>>()
-    val gameResultsList: LiveData<List<Array<Char>>> get() = _gameResultsList
-    private val gameResults = mutableListOf<Array<Char>>()
+    private val _gameResultsList = MutableLiveData<List<GameResult>>()
+    val gameResultsList: LiveData<List<GameResult>> get() = _gameResultsList
+    private val gameResults = mutableListOf<GameResult>()
 
     private var num = 0
 
@@ -24,6 +24,8 @@ class MainViewModel : ViewModel() {
     val board: LiveData<Array<Char>> get() = _board
     val playing: LiveData<Boolean> get() = _playing
 
+    var winnerdata = MutableLiveData<Char>('I')
+
     fun checkCurrentState(position: Int) {
         if (_playing.value!! && board.value!![position] == ' ') {
             val newBoard: Array<Char> = _board.value!!.clone() // 기존 보드를 복사
@@ -31,12 +33,14 @@ class MainViewModel : ViewModel() {
             _board.value = newBoard
 
             if (checkVictory(newBoard)) {
+                winnerdata.value = _currentPlayer.value!!
                 _resetButton.value = "한판 더"
                 _announcement.value = "게임 오버"
                 _playing.value = false
             } else {
                 num++
                 if (num == 9) {
+                    winnerdata.value = ' '
                     _resetButton.value = "한판 더"
                     _announcement.value = "무승부"
                     _playing.value = false
@@ -53,10 +57,13 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun addNewGameResult(board: Array<Char>) {
-        gameResults.add(board)
-        _gameResultsList.value = gameResults.toList()
+    fun addNewGameResult(board: Array<Char>, winner: Char) {
+        val winPlayer = winner // 승자가 없으면 무승부
+        val ThisGameResult = GameResult(board, winPlayer) // GameResult 객체 생성
+        gameResults.add(ThisGameResult) // 리스트에 추가
+        _gameResultsList.value = gameResults.toList() // MutableLiveData 업데이트
     }
+
 
     fun checkVictory(board: Array<Char>): Boolean {
         val victory = arrayOf(
