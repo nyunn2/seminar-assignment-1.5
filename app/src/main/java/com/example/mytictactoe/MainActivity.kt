@@ -1,6 +1,7 @@
 package com.example.mytictactoe
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.GridLayout
@@ -23,13 +24,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // 오목 판 생성
-        createDrawerBoard() // 서랍 오목판
+        //createDrawerBoard() // 서랍 오목판
         createBoard()
 
         // RecyclerView 초기화
-        adapter = GameResultAdapter(
-            historyButtons
-        )
+        adapter = GameResultAdapter()
         binding.recyclerView.layoutManager = LinearLayoutManager(this) // 세로로 나열
         binding.recyclerView.adapter = adapter
 
@@ -82,6 +81,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             itemGameResultLayout.addView(button)
+            Log.d("createDrawerBoard", "Button added: $button with text: ${button.text}")
             button
         }
     }
