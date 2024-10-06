@@ -1,26 +1,46 @@
 package com.example.mytictactoe
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.GridLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mytictactoe.databinding.ItemGameResultBinding
 
-class GameResultAdapter : ListAdapter<GameResult, GameResultAdapter.GameResultViewHolder>(DiffCallback()) {
+class GameResultAdapter() : ListAdapter<GameResult, GameResultAdapter.GameResultViewHolder>(DiffCallback()) {
 
     inner class GameResultViewHolder(private val binding: ItemGameResultBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(gameResult: GameResult) {
-            // 보드 상태를 각 TextView에 설정
-            binding.board1.text = gameResult.board[0].toString()
-            binding.board2.text = gameResult.board[1].toString()
-            binding.board3.text = gameResult.board[2].toString()
-            binding.board4.text = gameResult.board[3].toString()
-            binding.board5.text = gameResult.board[4].toString()
-            binding.board6.text = gameResult.board[5].toString()
-            binding.board7.text = gameResult.board[6].toString()
-            binding.board8.text = gameResult.board[7].toString()
-            binding.board9.text = gameResult.board[8].toString()
+            /*
+            val boardViews = mutableListOf<View>()
+            for (i in 0 until 25) {
+                boardViews.add(binding.gameresultBoard.getChildAt(i))
+            }
+            // 보드 상태를 각 View에 설정
+            boardViews.forEachIndexed { index, view ->
+                if (view is Button) {
+                    view.text = gameResult.board[index].toString()
+                }
+            }
+
+             */
+
+            for (i in 0 until 25) {
+                val button = Button(binding.root.context).apply {
+                    text = gameResult.board[i].toString()
+                    layoutParams = GridLayout.LayoutParams().apply {
+                        width = 0
+                        height = 0
+                        rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                        columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                    }
+                    textSize = 8f
+                }
+                binding.gameresultBoard.addView(button)
+            }
 
             // 승자 정보 설정
             binding.winnerText.text = when (gameResult.winner) {

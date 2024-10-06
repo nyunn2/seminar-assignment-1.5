@@ -1,20 +1,31 @@
 package com.example.mytictactoe
 
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.Button
+import android.widget.GridLayout
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mytictactoe.databinding.ActivityMainBinding
+import com.example.mytictactoe.databinding.ItemGameResultBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter: GameResultAdapter
+    private lateinit var buttons: List<Button>
+    private lateinit var historyButtons: List<Button>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 오목 판 생성
+        //createDrawerBoard() // 서랍 오목판
+        createBoard()
 
         // RecyclerView 초기화
         adapter = GameResultAdapter()
@@ -45,8 +56,6 @@ class MainActivity : AppCompatActivity() {
             viewModel.resetGame()
         }
 
-        // 각 보드 칸에 클릭 리스너 설정
-        setBoardClickListeners()
 
         // RecyclerView의 gameResultsList 관찰
         viewModel.gameResultsList.observe(this) { results ->
@@ -54,27 +63,58 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateBoardUI(board: Array<Char>) {
-        binding.board1.text = board[0].toString()
-        binding.board2.text = board[1].toString()
-        binding.board3.text = board[2].toString()
-        binding.board4.text = board[3].toString()
-        binding.board5.text = board[4].toString()
-        binding.board6.text = board[5].toString()
-        binding.board7.text = board[6].toString()
-        binding.board8.text = board[7].toString()
-        binding.board9.text = board[8].toString()
+    private fun createDrawerBoard() {
+        val itemGameResultLayout = ItemGameResultBinding.inflate(layoutInflater).gameresultBoard
+        itemGameResultLayout.rowCount = 5
+        itemGameResultLayout.columnCount = 5
+
+        historyButtons = (0..24).map { i ->
+            val button = Button(this).apply {
+                id = View.generateViewId()
+                text = i.toString()
+                textSize = 8f
+                layoutParams = GridLayout.LayoutParams().apply {
+                    width = 0
+                    height = 0
+                    rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                }
+            }
+            itemGameResultLayout.addView(button)
+            Log.d("createDrawerBoard", "Button added: $button with text: ${button.text}")
+            button
+        }
     }
 
-    private fun setBoardClickListeners() {
-        binding.board1.setOnClickListener { viewModel.checkCurrentState(0) }
-        binding.board2.setOnClickListener { viewModel.checkCurrentState(1) }
-        binding.board3.setOnClickListener { viewModel.checkCurrentState(2) }
-        binding.board4.setOnClickListener { viewModel.checkCurrentState(3) }
-        binding.board5.setOnClickListener { viewModel.checkCurrentState(4) }
-        binding.board6.setOnClickListener { viewModel.checkCurrentState(5) }
-        binding.board7.setOnClickListener { viewModel.checkCurrentState(6) }
-        binding.board8.setOnClickListener { viewModel.checkCurrentState(7) }
-        binding.board9.setOnClickListener { viewModel.checkCurrentState(8) }
+
+    private fun createBoard() {
+        val gridLayout = findViewById<GridLayout>(R.id.gridLayout)
+        gridLayout.rowCount = 5
+        gridLayout.columnCount = 5
+
+        buttons = (0..24).map { i ->
+            val button = Button(this).apply {
+                id = View.generateViewId()
+                text = i.toString()
+                textSize = 15f
+                layoutParams = GridLayout.LayoutParams().apply {
+                    width = 0
+                    height = 0
+                    rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                }
+            }
+            gridLayout.addView(button)
+            button.setOnClickListener {
+                viewModel.checkCurrentState(i)
+            }
+            button
+        }
+    }
+
+    private fun updateBoardUI(board: Array<Char>) {
+        buttons.forEachIndexed { index, button ->
+            button.text = board[index].toString()
+        }
     }
 }
